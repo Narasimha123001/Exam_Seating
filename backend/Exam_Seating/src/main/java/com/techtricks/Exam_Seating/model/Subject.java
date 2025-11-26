@@ -42,6 +42,7 @@ public class Subject {
 //    private PaperType paperType;
 
     private int parts;
+    private int year;
 
 //    private int durationMinutes;
 }
