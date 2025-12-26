@@ -3,9 +3,12 @@ package com.techtricks.Exam_Seating.services;
 import com.techtricks.Exam_Seating.dto.RoomRequest;
 import com.techtricks.Exam_Seating.model.Room;
 import com.techtricks.Exam_Seating.model.Seat;
+import com.techtricks.Exam_Seating.repository.ExamSessionRepository;
 import com.techtricks.Exam_Seating.repository.RoomRepository;
 import com.techtricks.Exam_Seating.repository.SeatRepository;
+import com.techtricks.Exam_Seating.repository.StudentSessionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +17,15 @@ import java.util.List;
 public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
+    private final ExamSessionRepository  examSessionRepository;
+    private final StudentSessionRepository  studentSessionRepository;
 
     private final SeatRepository seatRepository;
 
-    public RoomServiceImpl(RoomRepository roomRepository, SeatRepository seatRepository) {
+    public RoomServiceImpl(RoomRepository roomRepository, ExamSessionRepository examSessionRepository, StudentSessionRepository studentSessionRepository, SeatRepository seatRepository) {
         this.roomRepository = roomRepository;
+        this.examSessionRepository = examSessionRepository;
+        this.studentSessionRepository = studentSessionRepository;
         this.seatRepository = seatRepository;
     }
 
@@ -79,4 +86,24 @@ public class RoomServiceImpl implements RoomService {
 
         return savedRooms;
     }
+
+    @Override
+    public List<Long> selectRoomsForTotalStudents(int totalStudents) {
+        List<Room> rooms = roomRepository.findAllByOrderByTotalCapacityDesc();
+        List<Long> selected = new ArrayList<>();
+
+        int running =0;
+        for(Room r : rooms ){
+            selected.add(r.getRoomId());
+            running+=r.getSeatsPerBench() * r.getBenchesTotal();
+            if(running==totalStudents){
+                break;
+            }
+        }
+        return selected;
+     }
+
+
+
+
 }
