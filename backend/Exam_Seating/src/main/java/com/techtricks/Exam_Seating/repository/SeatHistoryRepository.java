@@ -21,4 +21,22 @@ public interface SeatHistoryRepository extends JpaRepository<SeatHistory,Long> {
 
     List<SeatHistory> findTop5ByStudent_StudentIdOrderByHistoryIdDesc(Long studentId);
 
-}
+    /**
+     * OPTIMIZED: Fetch top 5 histories for multiple students in ONE query
+     * This replaces thousands of individual queries
+     */
+    @Query(value = """
+
+            SELECT * FROM (
+            SELECT sh.*, 
+                   ROW_NUMBER() OVER (
+                       PARTITION BY sh.student_id 
+                       ORDER BY sh.history_id DESC
+                   ) as rn
+            FROM seat_history sh
+            WHERE sh.student_id IN :studentIds
+        ) sub
+        WHERE rn <= 5
+        """, nativeQuery = true)
+    List<SeatHistory> findTop5PerStudent(@Param("studentIds") List<Long> studentIds);
+    }
