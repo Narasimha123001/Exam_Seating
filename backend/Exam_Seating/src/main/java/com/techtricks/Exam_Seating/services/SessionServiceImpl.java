@@ -6,22 +6,17 @@ import com.techtricks.Exam_Seating.model.Subject;
 import com.techtricks.Exam_Seating.repository.ExamRepository;
 import com.techtricks.Exam_Seating.repository.ExamSessionRepository;
 import com.techtricks.Exam_Seating.repository.SubjectRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class SessionServiceImpl {
 
     private final ExamRepository  examRepository;
-
     private final ExamSessionRepository examSessionRepository;
-
     private final SubjectRepository subjectRepository;
 
-    public SessionServiceImpl(ExamRepository examRepository, ExamSessionRepository examSessionRepository, SubjectRepository subjectRepository) {
-        this.examRepository = examRepository;
-        this.examSessionRepository = examSessionRepository;
-        this.subjectRepository = subjectRepository;
-    }
 
     public ExamSession createSession(Long examId , Long subjectId , String date , String slot) {
 
