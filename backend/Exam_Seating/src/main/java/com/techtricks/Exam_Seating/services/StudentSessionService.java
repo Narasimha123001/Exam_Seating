@@ -11,9 +11,9 @@ import java.util.List;
 @Service
 public interface  StudentSessionService {
 
-    public StudentRegisterResponse register(StudentRegisterRequest request);
+    StudentRegisterResponse register(StudentRegisterRequest request);
 
 
-    public  StudentRegisterResponse bulkRegister(StudentBulkRegisterRequest request);
+    StudentRegisterResponse bulkRegister(StudentBulkRegisterRequest request);
 
 }
