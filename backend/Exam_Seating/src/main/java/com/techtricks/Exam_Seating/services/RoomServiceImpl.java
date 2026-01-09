@@ -1,32 +1,68 @@
 package com.techtricks.Exam_Seating.services;
 
 import com.techtricks.Exam_Seating.dto.RoomRequest;
+import com.techtricks.Exam_Seating.exception.InsufficientRoomCapacityException;
 import com.techtricks.Exam_Seating.model.Room;
 import com.techtricks.Exam_Seating.model.Seat;
 import com.techtricks.Exam_Seating.repository.ExamSessionRepository;
 import com.techtricks.Exam_Seating.repository.RoomRepository;
 import com.techtricks.Exam_Seating.repository.SeatRepository;
 import com.techtricks.Exam_Seating.repository.StudentSessionRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
+@Slf4j
 @Service
 public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
-    private final ExamSessionRepository  examSessionRepository;
-    private final StudentSessionRepository  studentSessionRepository;
-
     private final SeatRepository seatRepository;
+    /**
+     * Auto-select rooms to accommodate given number of students
+     * Selects rooms in order of capacity (largest first) until total >= required
+     */
+    public List<Long> selectRoomsForTotalStudents(int totalStudents) {
 
-    public RoomServiceImpl(RoomRepository roomRepository, ExamSessionRepository examSessionRepository, StudentSessionRepository studentSessionRepository, SeatRepository seatRepository) {
-        this.roomRepository = roomRepository;
-        this.examSessionRepository = examSessionRepository;
-        this.studentSessionRepository = studentSessionRepository;
-        this.seatRepository = seatRepository;
+        log.info("Selecting rooms for {} students", totalStudents);
+
+        // Fetch all available rooms, ordered by capacity descending
+        List<Room> rooms = roomRepository
+                .findAllByOrderByCapacityDesc();
+
+        if (rooms.isEmpty()) {
+            throw new InsufficientRoomCapacityException("No rooms available");
+        }
+
+        List<Long> selected = new ArrayList<>();
+        int capacity = 0;
+
+        for (Room room : rooms) {
+            selected.add(room.getRoomId());
+            capacity += room.getTotalCapacity();
+
+            log.debug("Selected room {} (capacity: {}), cumulative: {}",
+                    room.getRoomId(), room.getTotalCapacity(), capacity);
+
+            if (capacity >= totalStudents) break;
+        }
+
+        if (capacity < totalStudents) {
+            throw new InsufficientRoomCapacityException(
+                    String.format("Insufficient capacity. Need: %d, Available: %d",
+                            totalStudents, capacity)
+            );
+        }
+
+        log.info("Selected {} rooms with total capacity {}",
+                rooms.size(), capacity);
+
+        return selected;
     }
 
     public void generatedSeatsForRoom(Long roomId) {
@@ -87,21 +123,6 @@ public class RoomServiceImpl implements RoomService {
         return savedRooms;
     }
 
-    @Override
-    public List<Long> selectRoomsForTotalStudents(int totalStudents) {
-        List<Room> rooms = roomRepository.findAllByOrderByTotalCapacityDesc();
-        List<Long> selected = new ArrayList<>();
-
-        int running =0;
-        for(Room r : rooms ){
-            selected.add(r.getRoomId());
-            running+=r.getSeatsPerBench() * r.getBenchesTotal();
-            if(running==totalStudents){
-                break;
-            }
-        }
-        return selected;
-     }
 
 
 
