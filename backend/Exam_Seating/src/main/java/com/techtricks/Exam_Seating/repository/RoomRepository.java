@@ -11,6 +11,7 @@ import java.util.List;
 public interface RoomRepository extends JpaRepository<Room,Long> {
 
     @Query("SELECT r FROM Room r ORDER BY r.totalCapacity DESC")
+    List<Room> findAllByOrderByCapacityDesc();
 
     List<Room> findAllByOrderByTotalCapacityDesc();
 }
