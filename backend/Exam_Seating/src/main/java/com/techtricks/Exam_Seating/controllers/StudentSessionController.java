@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/studentSession")
+@RequestMapping("api/v1/studentSession")
 public class StudentSessionController {
 //    private final StudentRepository studentRepository;
     private final StudentSessionService studentSessionService;
