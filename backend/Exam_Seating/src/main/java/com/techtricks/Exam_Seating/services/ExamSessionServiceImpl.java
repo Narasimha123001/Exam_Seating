@@ -74,22 +74,14 @@ public class ExamSessionServiceImpl implements ExamSessionService {
     }
 
 
+    @Transactional
     @Override
     public Long calculateCapacity(Long sessionId) {
-
-        return studentSessionRepository.countBySession_SessionId(sessionId);
+        ExamSession examSession = getById(sessionId);
+        long count= studentSessionRepository.countBySession_SessionId(sessionId);
+        examSession.setCapacityRequired((int) count);
+        return count;
     }
-
-    @Transactional
-    public ExamSession updateCapacityRequired(Long sessionId) {
-        ExamSession session = getById(sessionId);
-
-        long count = calculateCapacity(sessionId);
-        session.setCapacityRequired((int) count);
-
-        return examSessionRepository.save(session);
-    }
-
 
     private ExamSessionResponse mapToResponse(ExamSession session) {
 
