@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+
 public interface ExamSessionService {
 
     public ExamSessionResponse create(ExamSessionCreateRequest session);
@@ -19,5 +19,4 @@ public interface ExamSessionService {
 
     public Long calculateCapacity(Long sessionId);
 
-    public ExamSession updateCapacityRequired(Long sessionId);
 }
