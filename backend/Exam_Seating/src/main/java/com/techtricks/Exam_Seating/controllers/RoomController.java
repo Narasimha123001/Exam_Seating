@@ -2,31 +2,21 @@ package com.techtricks.Exam_Seating.controllers;
 
 import com.techtricks.Exam_Seating.dto.RoomRequest;
 import com.techtricks.Exam_Seating.model.Room;
-import com.techtricks.Exam_Seating.repository.ExamSessionRepository;
 import com.techtricks.Exam_Seating.repository.RoomRepository;
-import com.techtricks.Exam_Seating.repository.StudentSessionRepository;
 import com.techtricks.Exam_Seating.services.RoomService;
-import com.techtricks.Exam_Seating.services.StudentSessionService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.PrivateKey;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/room")
+@RequestMapping("api/v1/room")
+@RequiredArgsConstructor
 public class RoomController {
 
     private final RoomService roomService;
     private final RoomRepository roomRepository;
-    private final ExamSessionRepository examSessionRepository;
 
-    public RoomController(RoomService roomService, RoomRepository roomRepository,  ExamSessionRepository examSessionRepository) {
-        this.roomService = roomService;
-        this.roomRepository = roomRepository;
-        this.examSessionRepository = examSessionRepository;
-    }
 
     @PostMapping
     public ResponseEntity<Room> create(@RequestBody Room room){
