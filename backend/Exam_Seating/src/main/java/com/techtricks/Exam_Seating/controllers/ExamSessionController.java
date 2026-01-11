@@ -4,20 +4,18 @@ import com.techtricks.Exam_Seating.dto.ExamSessionCreateRequest;
 import com.techtricks.Exam_Seating.dto.ExamSessionResponse;
 import com.techtricks.Exam_Seating.model.ExamSession;
 import com.techtricks.Exam_Seating.services.ExamSessionService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/examSessions")
+@RequestMapping("api/v1/examSessions")
+@RequiredArgsConstructor
 public class ExamSessionController {
 
     private final ExamSessionService examSessionService;
-
-    public ExamSessionController(ExamSessionService examSessionService) {
-        this.examSessionService = examSessionService;
-    }
 
     @PostMapping
     public ResponseEntity<ExamSessionResponse> create(@RequestBody ExamSessionCreateRequest request) {
@@ -40,11 +38,5 @@ public class ExamSessionController {
                         "capacityRequired", capacity
                 )
         );
-    }
-
-    // ✅ updates capacityRequired field in DB
-    @PutMapping("/{sessionId}/capacity/update")
-    public ResponseEntity<ExamSession> updateCapacity(@PathVariable Long sessionId) {
-        return ResponseEntity.ok(examSessionService.updateCapacityRequired(sessionId));
     }
 }
