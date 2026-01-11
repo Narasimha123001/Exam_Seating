@@ -4,22 +4,19 @@ import com.techtricks.Exam_Seating.dto.SubjectRequest;
 import com.techtricks.Exam_Seating.model.Subject;
 import com.techtricks.Exam_Seating.repository.SubjectRepository;
 import com.techtricks.Exam_Seating.services.SubjectService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/subjects")
+@RequestMapping("api/v1/subjects")
+@RequiredArgsConstructor
 public class SubjectController {
 
     private final  SubjectRepository  subjectRepository;
     private final SubjectService subjectService;
-
-    public SubjectController(SubjectRepository subjectRepository, SubjectService subjectService) {
-        this.subjectRepository = subjectRepository;
-        this.subjectService = subjectService;
-    }
 
     @PostMapping
     public ResponseEntity<Subject> create(@RequestBody Subject sbu){
