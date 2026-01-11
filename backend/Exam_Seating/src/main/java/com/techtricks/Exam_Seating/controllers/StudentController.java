@@ -4,10 +4,10 @@ import com.techtricks.Exam_Seating.dto.StudentRequest;
 import com.techtricks.Exam_Seating.dto.StudentResponse;
 import com.techtricks.Exam_Seating.model.SeatAssignment;
 import com.techtricks.Exam_Seating.model.Student;
-import com.techtricks.Exam_Seating.model.Subject;
 import com.techtricks.Exam_Seating.repository.SeatAssignmentRepository;
 import com.techtricks.Exam_Seating.repository.StudentRepository;
 import com.techtricks.Exam_Seating.services.StudentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,17 +15,13 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/student")
+@RequestMapping("api/v1/student")
+@RequiredArgsConstructor
 public class StudentController {
+
     private final SeatAssignmentRepository  seatAssignmentRepository;
     private final StudentService  studentService;
-
     private final StudentRepository studentRepository;
-    public StudentController(SeatAssignmentRepository seatAssignmentRepository, StudentService studentService, StudentRepository studentRepository) {
-        this.seatAssignmentRepository = seatAssignmentRepository;
-        this.studentService = studentService;
-        this.studentRepository = studentRepository;
-    }
 
     @GetMapping("/{studentId}/room")
     public ResponseEntity<?> getRoom(@PathVariable Long studentId , @RequestParam Long sessionId){
