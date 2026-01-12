@@ -28,12 +28,12 @@ public interface SeatHistoryRepository extends JpaRepository<SeatHistory,Long> {
     @Query(value = """
 
             SELECT * FROM (
-            SELECT sh.*, 
+            SELECT sh.*,
                    ROW_NUMBER() OVER (
-                       PARTITION BY sh.student_id 
+                       PARTITION BY sh.student_id
                        ORDER BY sh.history_id DESC
                    ) as rn
-            FROM seat_history sh
+            FROM student_seat_history sh
             WHERE sh.student_id IN :studentIds
         ) sub
         WHERE rn <= 5
