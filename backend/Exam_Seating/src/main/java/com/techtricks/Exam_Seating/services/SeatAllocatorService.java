@@ -6,11 +6,11 @@ import com.techtricks.Exam_Seating.exception.DuplicateRegistrationException;
 import com.techtricks.Exam_Seating.exception.InsufficientSeatsException;
 import com.techtricks.Exam_Seating.model.*;
 import com.techtricks.Exam_Seating.repository.SeatAssignmentRepository;
+import com.techtricks.Exam_Seating.repository.SeatHistoryRepository;
 import com.techtricks.Exam_Seating.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -30,7 +30,7 @@ public class SeatAllocatorService {
     private final SeatRepository seatRepository;
     private final SeatAssignmentRepository seatAssignmentRepository;
     private final RotationChecker rotationChecker;
-
+    private final SeatHistoryRepository seatHistoryRepository;
     /**
      * MAIN ENTRY – Slot wise allocation
      */
@@ -86,8 +86,6 @@ public class SeatAllocatorService {
         Map<Long, Integer> perSessionAssigned = new HashMap<>();
 
         int assignedCount = 0;
-        int rotationSkips = 0;
-        int emptyBucketSkips = 0;
 
         int i = 0;
         int benchIndex = 1;
@@ -238,18 +236,32 @@ public class SeatAllocatorService {
             return 0;
         }
 
+        // Save current assignment
         seatAssignmentRepository.save(
                 SeatAssignment.builder()
                         .seat(seat)
                         .room(seat.getRoom())
                         .student(student)
-                        .session(ExamSession.builder()
-                                .sessionId(bucketId)
-                                .build())
+                        .session(ExamSession.builder().sessionId(bucketId).build())
                         .status(AssignStatus.ASSIGNED)
                         .assignedAt(Instant.now().toString())
                         .build()
         );
+
+// Save history for rotation
+        seatHistoryRepository.save(
+                SeatHistory.builder()
+                        .student(student)
+                        .examSession(ExamSession.builder().sessionId(bucketId).build())
+                        .seat(seat)
+                        .room(seat.getRoom())
+                        .benchIndex(seat.getBenchIndex())
+                        .rowNo(seat.getRowNo())
+                        .colNo(seat.getColNo())
+                        .posNo(seat.getPosNo())
+                        .build()
+        );
+
 
         q.poll();
         stats.merge(bucketId, 1, Integer::sum);
@@ -277,23 +289,6 @@ public class SeatAllocatorService {
                 .map(Map.Entry::getKey)
                 .limit(limit)
                 .toList();
-    }
-
-    /**
-     * Get allocation status for sessions
-     */
-    public Map<String, Object> getAllocationStatus(List<Long> sessionIds) {
-        long totalAssignments = seatAssignmentRepository.countBySessionIdIn(sessionIds);
-
-        Map<Long, Long> perSessionCount = seatAssignmentRepository
-                .countPerSession(sessionIds);
-
-        return Map.of(
-                "totalAssignments", totalAssignments,
-                "sessionsAllocated", perSessionCount.size(),
-                "perSessionCount", perSessionCount,
-                "isAllocated", totalAssignments > 0
-        );
     }
 
     // ============================================================
