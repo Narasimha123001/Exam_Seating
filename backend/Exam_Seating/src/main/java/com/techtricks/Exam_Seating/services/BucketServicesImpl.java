@@ -2,7 +2,6 @@ package com.techtricks.Exam_Seating.services;
 
 import com.techtricks.Exam_Seating.model.Student;
 import com.techtricks.Exam_Seating.model.StudentSession;
-import com.techtricks.Exam_Seating.repository.StudentRepository;
 import com.techtricks.Exam_Seating.repository.StudentSessionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +27,7 @@ public class BucketServicesImpl implements BucketServices {
                     .findByExamSessionId(sessionId)
                             .stream()
                                     .map(StudentSession::getStudent)
-                                            .filter(Objects::isNull)
+                                            .filter(Objects::nonNull)
                                                     .toList();
 
             log.debug("Session {}: Found {} registered students", sessionId, students.size());
