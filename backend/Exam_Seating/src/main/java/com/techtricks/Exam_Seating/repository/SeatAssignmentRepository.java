@@ -45,5 +45,13 @@ public interface SeatAssignmentRepository extends JpaRepository<SeatAssignment, 
             "WHERE sa.session.sessionId = :sessionId " +
             "ORDER BY sa.seat.room.roomId, sa.seat.rowNo, sa.seat.colNo")
     List<SeatAssignment> findBySessionId(@Param("sessionId") Long sessionId);
+
+        @Query("""
+        SELECT sa.room.roomId
+        FROM SeatAssignment sa
+        WHERE sa.student.studentId = :studentId
+        """)
+    Long findRoomNoByStudentStudentId(@Param("studentId") Long studentId);
+
 }
 
