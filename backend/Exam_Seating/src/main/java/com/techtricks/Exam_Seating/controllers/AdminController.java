@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("api/v1/admin")
 @RequiredArgsConstructor
 @Slf4j
 public class AdminController {
@@ -28,27 +28,26 @@ public class AdminController {
      */
     @PostMapping("/generate")
     public ResponseEntity<?> generateBySlot(
-            @RequestParam String date,
-            @RequestParam String startTime) {
+            @RequestParam String slotCode ,
+            @RequestParam String date) {
 
         try {
-            log.info("Allocation request received for slot: {} {}", date, startTime);
+            log.info("Allocation request received for slot: {} , {}" ,date, slotCode);
 
             // Validate input
-            if (date == null || date.isEmpty() || startTime == null || startTime.isEmpty()) {
+            if (slotCode == null || slotCode.isEmpty()) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Date and startTime are required"));
+                        .body(Map.of("error", "slotCode is required"));
             }
 
             // Find all sessions in this slot
-            List<ExamSession> sessions = examSessionRepository
-                    .findByDateAndStartTime(date, startTime);
+            List<ExamSession> sessions = examSessionRepository.findByDateAndSlotCode(date,slotCode);
 
             if (sessions.isEmpty()) {
-                log.warn("No sessions found for slot: {} {}", date, startTime);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "No exam sessions found for this slot"));
+                        .body(Map.of("error", "No sessions found for slot and date:{} ,{}" , slotCode , date));
             }
+
 
             // Extract session IDs
             List<Long> sessionIds = sessions.stream()
@@ -56,6 +55,7 @@ public class AdminController {
                     .toList();
 
             log.info("Found {} sessions in slot: {}", sessionIds.size(), sessionIds);
+
 
             // Perform allocation
             SeatAllocatorService.MultiAllocationResult result =
@@ -66,8 +66,8 @@ public class AdminController {
 
             // Build response
             AllocationResponse response = AllocationResponse.builder()
-                    .slotDate(date)
-                    .slotTime(startTime)
+                    .date(date)
+                    .slot(slotCode)
                     .sessionsAllocated(sessionIds.size())
                     .sessionIds(sessionIds)
                     .selectedRooms(result.selectedRooms())
@@ -81,7 +81,7 @@ public class AdminController {
             return ResponseEntity.ok(response);
 
         } catch (AllocationException e) {
-            log.error("Allocation failed for slot {} {}: {}", date, startTime, e.getMessage());
+            log.error("Allocation failed for slot {} ,{}",slotCode, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
 
@@ -90,30 +90,5 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error: " + e.getMessage()));
         }
-    }
-
-    /**
-     * Get allocation status for a slot
-     */
-    @GetMapping("/status")
-    public ResponseEntity<?> getSlotStatus(
-            @RequestParam String date,
-            @RequestParam String startTime) {
-
-        List<ExamSession> sessions = examSessionRepository
-                .findByDateAndStartTime(date, startTime);
-
-        if (sessions.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "No sessions found"));
-        }
-
-        List<Long> sessionIds = sessions.stream()
-                .map(ExamSession::getSessionId)
-                .toList();
-
-        Map<String, Object> status = seatAllocatorService.getAllocationStatus(sessionIds);
-
-        return ResponseEntity.ok(status);
     }
 }
