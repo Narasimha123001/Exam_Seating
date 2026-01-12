@@ -10,8 +10,8 @@ import java.util.Map;
 @Builder
 public class AllocationResponse {
 
-    private String slotDate;
-    private String slotTime;
+    private String slot;
+    private String date;
     private int sessionsAllocated;
     private List<Long> sessionIds;
     private List<Long> selectedRooms;
