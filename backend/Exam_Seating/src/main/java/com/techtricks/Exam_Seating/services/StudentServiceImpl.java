@@ -1,13 +1,11 @@
 package com.techtricks.Exam_Seating.services;
 
-import com.techtricks.Exam_Seating.dto.StudentRequest;
-import com.techtricks.Exam_Seating.dto.StudentResponse;
-import com.techtricks.Exam_Seating.dto.SubjectRequest;
-import com.techtricks.Exam_Seating.dto.SubjectResponse;
+import com.techtricks.Exam_Seating.dto.*;
 import com.techtricks.Exam_Seating.model.Department;
 import com.techtricks.Exam_Seating.model.Student;
 import com.techtricks.Exam_Seating.model.Subject;
 import com.techtricks.Exam_Seating.repository.DepartmentRepository;
+import com.techtricks.Exam_Seating.repository.SeatAssignmentRepository;
 import com.techtricks.Exam_Seating.repository.StudentRepository;
 import com.techtricks.Exam_Seating.repository.SubjectRepository;
 import org.springframework.stereotype.Service;
@@ -22,11 +20,13 @@ public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final DepartmentRepository departmentRepository;
     private final SubjectRepository subjectRepository;
+    private final SeatAssignmentRepository seatAssignmentRepository;
 
-    public StudentServiceImpl(StudentRepository studentRepository, DepartmentRepository departmentRepository, SubjectRepository subjectRepository) {
+    public StudentServiceImpl(StudentRepository studentRepository, DepartmentRepository departmentRepository, SubjectRepository subjectRepository, SeatAssignmentRepository seatAssignmentRepository) {
         this.studentRepository = studentRepository;
         this.departmentRepository = departmentRepository;
         this.subjectRepository = subjectRepository;
+        this.seatAssignmentRepository = seatAssignmentRepository;
     }
 
     @Override
@@ -113,6 +113,20 @@ public class StudentServiceImpl implements StudentService {
         res.setSubjects(subjectResponses);
 
         return res;
+    }
+
+    @Override
+    public StudentSeatDetails getStudentSeatDetails(Long registerNo) {
+        Student student =studentRepository.findByRegisterNo(registerNo)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        long roomId= seatAssignmentRepository.findRoomNoByStudentStudentId(student.getStudentId());
+        StudentSeatDetails studentSeatDetails = new StudentSeatDetails();
+        studentSeatDetails.setRegisterNo(student.getRegisterNo());
+        studentSeatDetails.setRoomNo(roomId);
+
+        return  studentSeatDetails;
+
     }
 
 }
