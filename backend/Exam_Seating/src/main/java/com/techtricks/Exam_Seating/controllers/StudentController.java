@@ -2,6 +2,7 @@ package com.techtricks.Exam_Seating.controllers;
 
 import com.techtricks.Exam_Seating.dto.StudentRequest;
 import com.techtricks.Exam_Seating.dto.StudentResponse;
+import com.techtricks.Exam_Seating.dto.StudentSeatDetails;
 import com.techtricks.Exam_Seating.model.SeatAssignment;
 import com.techtricks.Exam_Seating.model.Student;
 import com.techtricks.Exam_Seating.repository.SeatAssignmentRepository;
@@ -62,6 +63,11 @@ public class StudentController {
     public ResponseEntity<StudentResponse> getStudentSubjects(@PathVariable Long registerNo){
         StudentResponse response = studentService.getStudentWithSubjects(registerNo);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("student/{regNo}")
+    public ResponseEntity<StudentSeatDetails> getIdByRegNo(@PathVariable  Long regNo) {
+        return ResponseEntity.ok(studentService.getStudentSeatDetails(regNo));
     }
 
 }
