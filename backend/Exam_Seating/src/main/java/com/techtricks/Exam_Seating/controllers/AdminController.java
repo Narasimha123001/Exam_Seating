@@ -22,10 +22,6 @@ public class AdminController {
     private final ExamSessionRepository examSessionRepository;
     private final SeatAllocatorService seatAllocatorService;
 
-    /**
-     * Allocate seating for all exam sessions in the given slot (date + startTime)
-     * Example: POST /admin/seating/generate?date=2025-11-29&startTime=09:30
-     */
     @PostMapping("/generate")
     public ResponseEntity<?> generateBySlot(
             @RequestParam String slotCode ,
