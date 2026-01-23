@@ -1,11 +1,7 @@
 package com.techtricks.Exam_Seating.services;
 
-import com.techtricks.Exam_Seating.dto.StudentRequest;
-import com.techtricks.Exam_Seating.dto.StudentResponse;
-import com.techtricks.Exam_Seating.dto.StudentSeatDetails;
-import com.techtricks.Exam_Seating.dto.SubjectRequest;
+import com.techtricks.Exam_Seating.dto.*;
 import com.techtricks.Exam_Seating.model.Student;
-import com.techtricks.Exam_Seating.model.Subject;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,14 +10,17 @@ import java.util.List;
 public interface StudentService {
 
    // public Student addStudent(Long regNo, String name, Long deptId, int year, int sem);
-    public Student addStudent(StudentRequest studentRequest);
+     Student addStudent(StudentRequest studentRequest);
 
-    public Student getStudent(Long registrationId);
+   Student getStudent(Long registrationId);
 
     List<Student> addStudentBulk(List<StudentRequest> list);
 
+    Student updateStudent(StudentRequest studentRequest);
 
-    public StudentResponse getStudentWithSubjects(Long registerNo);
+   StudentResponse getStudentWithSubjects(Long registerNo);
 
     StudentSeatDetails getStudentSeatDetails(Long registerNo);
+
+    StudentProfileDto getStudentByEmail(String email);
 }
