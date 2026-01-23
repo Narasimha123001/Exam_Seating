@@ -8,12 +8,15 @@ import com.techtricks.Exam_Seating.repository.DepartmentRepository;
 import com.techtricks.Exam_Seating.repository.SeatAssignmentRepository;
 import com.techtricks.Exam_Seating.repository.StudentRepository;
 import com.techtricks.Exam_Seating.repository.SubjectRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class StudentServiceImpl implements StudentService {
 
@@ -22,12 +25,6 @@ public class StudentServiceImpl implements StudentService {
     private final SubjectRepository subjectRepository;
     private final SeatAssignmentRepository seatAssignmentRepository;
 
-    public StudentServiceImpl(StudentRepository studentRepository, DepartmentRepository departmentRepository, SubjectRepository subjectRepository, SeatAssignmentRepository seatAssignmentRepository) {
-        this.studentRepository = studentRepository;
-        this.departmentRepository = departmentRepository;
-        this.subjectRepository = subjectRepository;
-        this.seatAssignmentRepository = seatAssignmentRepository;
-    }
 
     @Override
     public Student addStudent(StudentRequest st) {
@@ -38,6 +35,26 @@ public class StudentServiceImpl implements StudentService {
         Student s = Student.builder()
                 .registerNo(st.getRegistrationId())
                 .name(st.getName())
+                .year(st.getYear())
+                .semester(st.getSem())
+                .email(st.getEmail())
+                .phone(st.getPhone())
+                .department(d)
+                .build();
+        return studentRepository.save(s);
+    }
+
+
+    @Override
+    @Transactional
+    public Student updateStudent(StudentRequest st) {
+
+        Department d = departmentRepository.findById(st.getDepId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+
+        Student updateStudent = Student.builder()
+                .registerNo(st.getRegistrationId())
+                .name(st.getName())
                 .department(d)
                 .year(st.getYear())
                 .semester(st.getSem())
@@ -45,9 +62,10 @@ public class StudentServiceImpl implements StudentService {
                 .phone(st.getPhone())
 
                 .build();
-        return studentRepository.save(s);
-    }
+        return studentRepository.save(updateStudent);
 
+
+    }
 
 
     @Override
@@ -94,14 +112,11 @@ public class StudentServiceImpl implements StudentService {
                 student.getYear()
         );
 
-        // Convert to DTO
         List<SubjectResponse> subjectResponses = subjectList.stream().map(s -> {
             SubjectResponse dto = new SubjectResponse();
-          //  dto.setSubjectId(s.getSubjectId());
+
             dto.setSubjectCode(s.getSubjectCode());
             dto.setTitle(s.getTitle());
-         //   dto.setSemester(s.getSemester());
-         //   dto.setYear(s.getYear());
             return dto;
         }).toList();
 
@@ -129,4 +144,19 @@ public class StudentServiceImpl implements StudentService {
 
     }
 
+    @Override
+    public StudentProfileDto getStudentByEmail(String email) {
+        Student student =  studentRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+
+        return new  StudentProfileDto(
+                student.getRegisterNo(),
+                student.getName(),
+                student.getEmail(),
+                student.getDepartment().getName(), // safely accessed
+                student.getYear(),
+                student.getSemester()
+        );
+    }
 }
