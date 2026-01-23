@@ -22,7 +22,7 @@ public class Student {
     @Column(nullable = false , unique = true)
     private Long registerNo;
 
-    @Column(nullable = false )
+
     private String name;
 
 
