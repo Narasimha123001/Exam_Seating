@@ -1,5 +1,5 @@
 package com.techtricks.Exam_Seating.controllers;
-
+import com.techtricks.Exam_Seating.dto.StudentProfileDto;
 import com.techtricks.Exam_Seating.dto.StudentRequest;
 import com.techtricks.Exam_Seating.dto.StudentResponse;
 import com.techtricks.Exam_Seating.dto.StudentSeatDetails;
@@ -10,13 +10,15 @@ import com.techtricks.Exam_Seating.repository.StudentRepository;
 import com.techtricks.Exam_Seating.services.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/v1/student")
+@RequestMapping("/api/v1/student")
 @RequiredArgsConstructor
 public class StudentController {
 
@@ -37,12 +39,14 @@ public class StudentController {
 
     @PostMapping("/add")
     public ResponseEntity<Student> addStudent(@RequestBody StudentRequest studentRequest){
+//        Student saved = studentService.addStudent(studentRequest);
+//        return ResponseEntity.ok(saved);
         return ResponseEntity.ok(studentService.addStudent(studentRequest));
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudent(@PathVariable Long id){
+    public ResponseEntity<Student> getStudentById(@PathVariable Long id){
         Student st =  studentService.getStudent(id);
         return ResponseEntity.ok(st);
     }
@@ -69,4 +73,16 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getStudentSeatDetails(regNo));
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<StudentProfileDto> getMyProfile() {
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        return ResponseEntity.ok(
+                studentService.getStudentByEmail(email));
+
+    }
 }
