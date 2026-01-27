@@ -101,11 +101,12 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentResponse getStudentWithSubjects(Long registerNo) {
+    public StudentResponse getStudentWithSubjects(String email) {
 
-        Student student = studentRepository.findByRegisterNo(registerNo)
+        Student student = studentRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
+        //-> subject form
         List<Subject> subjectList = subjectRepository.findByDeptSemYear(
                 student.getDepartment().getDeptId(),
                 student.getSemester(),
@@ -119,15 +120,16 @@ public class StudentServiceImpl implements StudentService {
             dto.setTitle(s.getTitle());
             return dto;
         }).toList();
+        // up to this
+        StudentResponse studentSubjectsResponse = new StudentResponse();
+        studentSubjectsResponse.setEmail(email);
+//        res.setRegistrationId(student.getRegisterNo());
+//        res.setName(student.getName());
+//        res.setYear(student.getYear());
+//        res.setSemester(student.getSemester());
+        studentSubjectsResponse.setSubjects(subjectResponses);
 
-        StudentResponse res = new StudentResponse();
-        res.setRegistrationId(student.getRegisterNo());
-        res.setName(student.getName());
-        res.setYear(student.getYear());
-        res.setSemester(student.getSemester());
-        res.setSubjects(subjectResponses);
-
-        return res;
+        return studentSubjectsResponse;
     }
 
     @Override
@@ -154,6 +156,7 @@ public class StudentServiceImpl implements StudentService {
                 student.getRegisterNo(),
                 student.getName(),
                 student.getEmail(),
+                student.getPhone(),
                 student.getDepartment().getName(), // safely accessed
                 student.getYear(),
                 student.getSemester()
