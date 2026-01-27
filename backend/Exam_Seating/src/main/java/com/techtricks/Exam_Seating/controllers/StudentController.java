@@ -62,10 +62,13 @@ public class StudentController {
         return ResponseEntity.ok(saved);
     }
 
-    @GetMapping("/subject/{registerNo}")
-    public ResponseEntity<StudentResponse> getStudentSubjects(@PathVariable Long registerNo){
-        StudentResponse response = studentService.getStudentWithSubjects(registerNo);
-        return ResponseEntity.ok(response);
+    @GetMapping("/subjects")
+    public ResponseEntity<StudentResponse> getStudentSubjects(){
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+        return ResponseEntity.ok( studentService.getStudentWithSubjects(email));
     }
 
     @GetMapping("student/{regNo}")
