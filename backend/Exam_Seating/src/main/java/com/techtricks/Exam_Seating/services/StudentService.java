@@ -2,11 +2,10 @@ package com.techtricks.Exam_Seating.services;
 
 import com.techtricks.Exam_Seating.dto.*;
 import com.techtricks.Exam_Seating.model.Student;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+
 public interface StudentService {
 
    // public Student addStudent(Long regNo, String name, Long deptId, int year, int sem);
@@ -18,7 +17,7 @@ public interface StudentService {
 
     Student updateStudent(StudentRequest studentRequest);
 
-   StudentResponse getStudentWithSubjects(Long registerNo);
+   StudentResponse getStudentWithSubjects(String email);
 
     StudentSeatDetails getStudentSeatDetails(Long registerNo);
 
