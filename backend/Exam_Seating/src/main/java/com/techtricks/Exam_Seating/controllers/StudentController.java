@@ -62,6 +62,7 @@ public class StudentController {
         return ResponseEntity.ok(saved);
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @GetMapping("/subjects")
     public ResponseEntity<StudentResponse> getStudentSubjects(){
         String email = SecurityContextHolder
