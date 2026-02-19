@@ -67,6 +67,10 @@ This system solves the problem using:
 * Roles & Permissions
 * JWT Security
 * Room Access Management
+* COE Appointment Scheduling (staff meet requests)
+* Room Securing & Approval workflow
+* Time-slot conflict prevention
+* Access audit logs
 
 #### Exam Seating Module
 
@@ -156,6 +160,30 @@ Two students per bench:
 * JWT Authentication
 * Role based authorization
 * Protected APIs
+
+---
+
+## 🏢 COE Operations (Controller of Examinations)
+
+### Appointment Management
+
+* Staff can request appointment with COE
+* COE can approve / reject requests
+* Slot clash detection prevents double booking
+* History of meetings maintained
+
+### Room Securing
+
+* Departments request exam halls in advance
+* COE approves hall allocation
+* Prevents duplicate room reservation during same session
+* Access restricted using role-based permissions
+
+### Staff Role
+
+* Request room usage
+* Track approval status
+* View allotted rooms
 
 ---
 
