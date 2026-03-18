@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface BlackRoomAccessRepository extends JpaRepository<BlackRoomAccess, Long> {
 
 
+
       Optional<BlackRoomAccess> findRoomAccessByBlackRoom_BlackRoomId(Long blackRoomId);
 
     List<BlackRoomAccess> findByUser_id(Long registerNumber);
@@ -22,8 +23,8 @@ public interface BlackRoomAccessRepository extends JpaRepository<BlackRoomAccess
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM BlackRoomAccess ra WHERE ra.user.id = :userId AND ra.blackRoom.blackRoomId =:blackRoomId")
-    void deleteRoomAccess(@Param("userId")  Long userId, @Param("blackRoomId") Long blackRoomId);
+    @Query("DELETE FROM BlackRoomAccess ra WHERE ra.user.id = :userId AND ra.blackRoom.blackRoomName =:blackRoomName")
+    void deleteRoomAccess(@Param("userId")  Long userId, @Param("blackRoomName") String blackRoomName);
 
      boolean existsByUserIdAndBlackRoomBlackRoomId(Long userId, Long blackRoomId);
 
