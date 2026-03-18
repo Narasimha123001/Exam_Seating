@@ -9,5 +9,9 @@ import java.util.Optional;
 @Repository
 public interface BlackRoomRepository extends JpaRepository<BlackRoom, Long> {
 
+    Optional<BlackRoom> findByBlackRoomName(String blackRoomName);
+
+    Optional<BlackRoom> findByBlackRoomNumber(Long blackRoomNUmber);
+
     Optional<BlackRoom> findByBlackRoomId(Long blackRoomId);
 }
