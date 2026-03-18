@@ -21,6 +21,8 @@ public class BlackRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long blackRoomId;
 
+    private Long blackRoomNumber;
+
     @Column(unique = true)
     private String blackRoomName;
 
