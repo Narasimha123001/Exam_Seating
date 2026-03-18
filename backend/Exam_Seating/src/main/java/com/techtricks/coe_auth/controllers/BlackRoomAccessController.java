@@ -57,11 +57,11 @@ public class BlackRoomAccessController {
     }
 
 
-    @GetMapping("/access/{registerNumber}/{blackRoomId}")
-    public ResponseEntity<?> validateAccess(@PathVariable Long registerNumber, @PathVariable Long blackRoomId) {
+    @GetMapping("/access/{registerNumber}/1417/{roomNumber}")
+    public ResponseEntity<?> validateAccess(@PathVariable Long registerNumber, @PathVariable Long roomNumber) throws BlackRoomNotFoundExceptions {
         try{
-            boolean validate = blackRoomAccessService.validateAccess(registerNumber, blackRoomId);
-            System.out.println(registerNumber +" "+ blackRoomId + " "+ validate);
+            boolean validate = blackRoomAccessService.validateAccess(registerNumber, roomNumber);
+            System.out.println(registerNumber +" "+ roomNumber + " "+ validate);
             if(validate){
                 return ResponseEntity.ok("Access validated successfully");
             }else{
