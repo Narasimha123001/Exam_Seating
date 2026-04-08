@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,6 +27,11 @@ public class ExamSessionController {
     @GetMapping("/id/{sessionId}")
     public ResponseEntity<ExamSession> getOne(@PathVariable Long sessionId) {
         return ResponseEntity.ok(examSessionService.getById(sessionId));
+    }
+
+    @GetMapping("/examId/{examId}")
+    public ResponseEntity<List<ExamSessionResponse>> getSessionByExamId(@PathVariable Long examId) {
+        return ResponseEntity.ok(examSessionService.findSessionByExamId(examId));
     }
 
     @GetMapping("/{sessionId}/capacity")

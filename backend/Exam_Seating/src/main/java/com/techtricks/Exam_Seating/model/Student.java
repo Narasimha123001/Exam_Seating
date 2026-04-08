@@ -27,7 +27,7 @@ public class Student {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dept_id")
+    @JoinColumn(name = "dept_id" , nullable = false)
     private Department department;
 
     private int year;

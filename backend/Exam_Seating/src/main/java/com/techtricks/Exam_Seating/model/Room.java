@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Entity
 @Table(name = "room")
 @Data
@@ -19,13 +18,21 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
 
-    private  String name;
+    @Column(name = "room_number", nullable = false, unique = true)
+    private Long roomNumber;
 
-    private  int benchesTotal;
+    @Column(name = "name")
+    private String name;
 
-    private int seatsPerBench;
+    @Column(name = "benches_total")
+    private Integer benchesTotal;
 
-    private int totalCapacity;
+    @Column(name = "seats_per_bench")
+    private Integer seatsPerBench;
 
+    @Column(name = "total_capacity")
+    private Integer totalCapacity;
+
+    @Column(name = "location")
     private String location;
 }

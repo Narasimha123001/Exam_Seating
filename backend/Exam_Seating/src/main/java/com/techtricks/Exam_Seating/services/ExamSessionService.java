@@ -15,8 +15,11 @@ public interface ExamSessionService {
 
     public List<ExamSession> findAll();
 
+    public List<ExamSessionResponse> findSessionByExamId(Long examId);
     public ExamSession getById(Long sessionId);
 
     public Long calculateCapacity(Long sessionId);
+
+
 
 }

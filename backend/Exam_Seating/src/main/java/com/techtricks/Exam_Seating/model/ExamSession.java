@@ -1,6 +1,7 @@
 package com.techtricks.Exam_Seating.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,11 +25,17 @@ public class ExamSession {
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
+    @ManyToOne
+    @JoinColumn(name = "dept_dept_id")
+    private Department dept;
+
+    private String subject_code;
+
     private String date;       // yyyy-MM-dd
     private String slotCode;   // S1, S2, etc.
     private String startTime;  // HH:mm
     private String endTime;    // HH:mm
-
+    private int year;
     private Integer partNo;    // can be null in JSON if not sent
 
     // We don't want client to send this on create; we compute later.

@@ -76,10 +76,8 @@ public class SeatAllocatorService {
                 .map(Student::getStudentId)
                 .distinct()
                 .toList();
-
-        Map<Long, List<SeatHistory>> rotationCache =
+        Map<Long, SeatHistory> rotationCache =
                 rotationChecker.loadRotationCache(allStudentIds);
-
         log.info("Rotation cache loaded for {} students", allStudentIds.size());
 
         // ---------------- PHASE 4: BENCH‑WISE ALLOCATION ----------------
@@ -157,7 +155,7 @@ public class SeatAllocatorService {
     private int fillBenchCase3(
             Seat l, Seat m, Seat r,
             Map<Long, Queue<Student>> buckets,
-            Map<Long, List<SeatHistory>> cache,
+            Map<Long, SeatHistory> cache,
             Map<Long, Integer> stats) {
 
         List<Long> active = getActiveBucketIds(buckets, 3);
@@ -178,7 +176,7 @@ public class SeatAllocatorService {
     private int fillBenchCase2(
             Seat l, Seat r,
             Map<Long, Queue<Student>> buckets,
-            Map<Long, List<SeatHistory>> cache,
+            Map<Long, SeatHistory> cache,
             Map<Long, Integer> stats) {
 
         List<Long> active = getActiveBucketIds(buckets, 2);
@@ -198,7 +196,7 @@ public class SeatAllocatorService {
     private int fillBenchCase1(
             Seat l, Seat r,
             Map<Long, Queue<Student>> buckets,
-            Map<Long, List<SeatHistory>> cache,
+            Map<Long, SeatHistory>cache,
             Map<Long, Integer> stats) {
 
         List<Long> active = getActiveBucketIds(buckets, 1);
@@ -220,58 +218,70 @@ public class SeatAllocatorService {
             Seat seat,
             Long bucketId,
             Map<Long, Queue<Student>> buckets,
-            Map<Long, List<SeatHistory>> cache,
+            Map<Long,SeatHistory> cache,
             Map<Long, Integer> stats) {
 
         Queue<Student> q = buckets.get(bucketId);
+
         if (q == null || q.isEmpty()) {
             return 0;
         }
+        int size = q.size();
+        List<Student> skipped = new ArrayList<>();
 
-        Student student = q.peek();
+        for (int i = 0 ; i < size; i++) {
 
-        if (rotationChecker.violatesRotation(student, seat, cache)) {
-            log.trace("Rotation rejected student {} for seat {}",
-                    student.getRegisterNo(), seat.getSeatLabel());
-            return 0;
+            Student student = q.poll();
+            assert student != null;
+           ///todo -> if any middle it will beark  , i want to find which student it will break
+            if (!rotationChecker.violatesRotation(student, seat, cache)) {
+//            log.trace("Rotation rejected student {} for seat {}",
+//                    student.getRegisterNo(), seat.getSeatLabel());
+//            return 0;
+
+                //assign
+                seatAssignmentRepository.save(
+                        SeatAssignment.builder()
+                                .seat(seat)
+                                .room(seat.getRoom())
+                                .student(student)
+                                .session(ExamSession.builder().sessionId(bucketId).build())
+                                .status(AssignStatus.ASSIGNED)
+                                .assignedAt(Instant.now().toString())
+                                .build()
+                );
+
+
+                // Save history for rotation
+                seatHistoryRepository.save(
+                        SeatHistory.builder()
+                                .student(student)
+                                .examSession(ExamSession.builder().sessionId(bucketId).build())
+                                .seat(seat)
+                                .room(seat.getRoom())
+                                .benchIndex(seat.getBenchIndex())
+                                .rowNo(seat.getRowNo())
+                                .colNo(seat.getColNo())
+                                .posNo(seat.getPosNo())
+                                .build()
+                );
+                stats.merge(bucketId, 1, Integer::sum);
+                log.trace("Assigned student {} to {} (session {})",
+                        student.getRegisterNo(),
+                        seat.getSeatLabel(),
+                        bucketId);
+
+                q.addAll(skipped);
+
+                return 1;
+            }
+
+            skipped.add(student);
         }
 
-        // Save current assignment
-        seatAssignmentRepository.save(
-                SeatAssignment.builder()
-                        .seat(seat)
-                        .room(seat.getRoom())
-                        .student(student)
-                        .session(ExamSession.builder().sessionId(bucketId).build())
-                        .status(AssignStatus.ASSIGNED)
-                        .assignedAt(Instant.now().toString())
-                        .build()
-        );
+        q.addAll(skipped);
 
-// Save history for rotation
-        seatHistoryRepository.save(
-                SeatHistory.builder()
-                        .student(student)
-                        .examSession(ExamSession.builder().sessionId(bucketId).build())
-                        .seat(seat)
-                        .room(seat.getRoom())
-                        .benchIndex(seat.getBenchIndex())
-                        .rowNo(seat.getRowNo())
-                        .colNo(seat.getColNo())
-                        .posNo(seat.getPosNo())
-                        .build()
-        );
-
-
-        q.poll();
-        stats.merge(bucketId, 1, Integer::sum);
-
-        log.trace("Assigned student {} to {} (session {})",
-                student.getRegisterNo(),
-                seat.getSeatLabel(),
-                bucketId);
-
-        return 1;
+        return 0;
     }
 
     // ============================================================

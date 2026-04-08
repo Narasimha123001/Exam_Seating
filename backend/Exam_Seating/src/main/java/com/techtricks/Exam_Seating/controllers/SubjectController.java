@@ -1,11 +1,13 @@
 package com.techtricks.Exam_Seating.controllers;
 
 import com.techtricks.Exam_Seating.dto.SubjectRequest;
+import com.techtricks.Exam_Seating.dto.SubjectResponseBack;
 import com.techtricks.Exam_Seating.model.Subject;
 import com.techtricks.Exam_Seating.repository.SubjectRepository;
 import com.techtricks.Exam_Seating.services.SubjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,9 +35,18 @@ public class SubjectController {
         return ResponseEntity.of(subjectRepository.findById(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/bulk")
     public ResponseEntity<List<Subject>> addSubjectsBulk(@RequestBody List<SubjectRequest> subjectRequests){
         List<Subject> created = subjectService.addSubjectsBulk(subjectRequests);
         return ResponseEntity.ok(created);
     }
+
+    @GetMapping("/subject/{deptId}")
+    public ResponseEntity<List<SubjectResponseBack>> getSubjectByDept(@PathVariable Long deptId){
+        return ResponseEntity.ok(subjectService.getSubjectsByDept(deptId));
+    }
+
+
+
 }

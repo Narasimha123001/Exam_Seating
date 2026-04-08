@@ -1,14 +1,12 @@
 package com.techtricks.Exam_Seating.controllers;
-import com.techtricks.Exam_Seating.dto.StudentProfileDto;
-import com.techtricks.Exam_Seating.dto.StudentRequest;
-import com.techtricks.Exam_Seating.dto.StudentResponse;
-import com.techtricks.Exam_Seating.dto.StudentSeatDetails;
+import com.techtricks.Exam_Seating.dto.*;
 import com.techtricks.Exam_Seating.model.SeatAssignment;
 import com.techtricks.Exam_Seating.model.Student;
 import com.techtricks.Exam_Seating.repository.SeatAssignmentRepository;
 import com.techtricks.Exam_Seating.repository.StudentRepository;
 import com.techtricks.Exam_Seating.services.StudentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,7 +22,6 @@ public class StudentController {
 
     private final SeatAssignmentRepository  seatAssignmentRepository;
     private final StudentService  studentService;
-    private final StudentRepository studentRepository;
 
     @GetMapping("/{studentId}/room")
     public ResponseEntity<?> getRoom(@PathVariable Long studentId , @RequestParam Long sessionId){
@@ -50,11 +47,11 @@ public class StudentController {
         Student st =  studentService.getStudent(id);
         return ResponseEntity.ok(st);
     }
-
-    @GetMapping
-    public ResponseEntity<List<Student>> list() {
-        return ResponseEntity.ok(studentRepository.findAll());
-    }
+//
+//    @GetMapping
+//    public ResponseEntity<List<Student>> list() {
+//        return ResponseEntity.ok(studentRepository.findAll());
+//    }
 
     @PostMapping("/bulk")
     public ResponseEntity<List<Student>> addStudentBulk(@RequestBody List<StudentRequest> student){
@@ -88,5 +85,31 @@ public class StudentController {
         return ResponseEntity.ok(
                 studentService.getStudentByEmail(email));
 
+    }
+//
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @GetMapping("/all")
+//    public ResponseEntity<Page<StudentListResponse>> getAllStudents(@RequestParam(defaultValue = "0") int page , @RequestParam(defaultValue = "20") int size){
+//        return ResponseEntity.ok(studentService.list(page, size));
+//    }
+
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public ResponseEntity<Page<StudentListResponse>> getAllStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sort
+    ) {
+
+        return ResponseEntity.ok(
+                studentService.list(page, size, search, sort)
+        );
+    }
+
+    @GetMapping("/list/{year}/deptId/{deptId}")
+    public ResponseEntity<List<Long>> getStudentYearWiseList(@PathVariable int year , @PathVariable Long  deptId) {
+        return ResponseEntity.ok(studentService.getStudentYearWiseList(year, deptId));
     }
 }

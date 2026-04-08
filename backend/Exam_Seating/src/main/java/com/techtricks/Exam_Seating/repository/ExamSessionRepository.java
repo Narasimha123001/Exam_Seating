@@ -1,5 +1,6 @@
 package com.techtricks.Exam_Seating.repository;
 
+import com.techtricks.Exam_Seating.dto.ExamSessionResponse;
 import com.techtricks.Exam_Seating.model.ExamSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +14,13 @@ import java.util.Optional;
 public interface ExamSessionRepository extends JpaRepository<ExamSession,Long> {
     ExamSession findBySessionId(Long sessionId);
     List<ExamSession> findByExam_ExamId(Long examId);
+    @Query("""
+    SELECT e FROM ExamSession e
+    WHERE e.exam.examId = :examId
+    ORDER BY e.date ASC, e.startTime ASC, e.sessionId ASC
+""")
 
+    List<ExamSession> findExamSessionByExamId(Long examId);
 
     @Query("SELECT e.capacityRequired FROM ExamSession e WHERE e.sessionId = :sessionId")
     Integer getCapacityBySessionId(@Param("sessionId") Long sessionId);

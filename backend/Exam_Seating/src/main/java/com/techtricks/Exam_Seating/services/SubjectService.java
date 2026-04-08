@@ -1,6 +1,7 @@
 package com.techtricks.Exam_Seating.services;
 
 import com.techtricks.Exam_Seating.dto.SubjectRequest;
+import com.techtricks.Exam_Seating.dto.SubjectResponseBack;
 import com.techtricks.Exam_Seating.model.Subject;
 import org.springframework.stereotype.Service;
 
@@ -13,5 +14,5 @@ public interface SubjectService {
 
     List<Subject> addSubjectsBulk(List<SubjectRequest> list);
 
-
+    List<SubjectResponseBack> getSubjectsByDept(Long deptId);
 }

@@ -22,9 +22,11 @@ import java.util.List;
 @Slf4j
 public class StudentSessionServiceImpl implements StudentSessionService {
 
+    private final ExamSessionService examSessionService;
     private final StudentRepository studentRepository;
     private final ExamSessionRepository examSessionRepository;
     private final StudentSessionRepository studentSessionRepository;
+    private final EligibilityService eligibilityService;
 
     @Override
     @Transactional
@@ -33,6 +35,10 @@ public class StudentSessionServiceImpl implements StudentSessionService {
         Student student = studentRepository.findByRegisterNo(request.getRegistrationNo())
                 .orElseThrow(() -> new RuntimeException(
                         "Student not found: " + request.getRegistrationNo()));
+
+        if (!eligibilityService.isEligible(student)) {
+            throw new RuntimeException("Student not eligible: " + student.getRegisterNo());
+        }
 
         ExamSession session = examSessionRepository.findBySessionId(request.getSessionId());
 
@@ -61,9 +67,7 @@ public class StudentSessionServiceImpl implements StudentSessionService {
     @Override
     @Transactional
     public StudentRegisterResponse bulkRegister(StudentBulkRegisterRequest request) {
-
         ExamSession session = examSessionRepository.findBySessionId(request.getSessionId());
-
         if (session == null) {
             throw new RuntimeException("Session not found: " + request.getSessionId());
         }
@@ -75,13 +79,17 @@ public class StudentSessionServiceImpl implements StudentSessionService {
         for (Long regNo : request.getRegistrationIds()) {
             studentRepository.findByRegisterNo(regNo).ifPresentOrElse(
                     student -> {
-                        toSave.add(
-                                StudentSession.builder()
-                                        .student(student)
-                                        .session(session)
-                                        .build()
-                        );
-                        registered.add(regNo);
+//                        if(eligibilityService.isEligible(student)) {
+                            toSave.add(
+                                    StudentSession.builder()
+                                            .student(student)
+                                            .session(session)
+                                            .build()
+                            );
+                            registered.add(regNo);
+//                        }else{
+//                            failed.add(regNo);
+//                        }
                     },
                     () -> {
                         log.warn("Student not found: {}", regNo);
@@ -95,7 +103,7 @@ public class StudentSessionServiceImpl implements StudentSessionService {
 
         log.info("Bulk registration: {} succeeded, {} failed",
                 registered.size(), failed.size());
-
+        examSessionService.calculateCapacity(session.getSessionId());
         StudentRegisterResponse response = new StudentRegisterResponse();
         response.setSessionId(request.getSessionId());
         response.setRegistrationNo(registered);

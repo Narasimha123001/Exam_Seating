@@ -10,6 +10,10 @@ import com.techtricks.Exam_Seating.repository.StudentRepository;
 import com.techtricks.Exam_Seating.repository.SubjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,7 +33,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public Student addStudent(StudentRequest st) {
 
-        Department d = departmentRepository.findById(st.getDepId())
+        Department d = departmentRepository.findDepartmentByDeptId(st.getDepId())
                 .orElseThrow(() -> new RuntimeException("Department not found"));
 
         Student s = Student.builder()
@@ -49,7 +53,7 @@ public class StudentServiceImpl implements StudentService {
     @Transactional
     public Student updateStudent(StudentRequest st) {
 
-        Department d = departmentRepository.findById(st.getDepId())
+        Department d = departmentRepository.findDepartmentByName(st.getName())
                 .orElseThrow(() -> new RuntimeException("Department not found"));
 
         Student updateStudent = Student.builder()
@@ -73,13 +77,73 @@ public class StudentServiceImpl implements StudentService {
         Optional<Student> optional = studentRepository.findByRegisterNo(registrationId);
         return optional.orElse(null);
     }
+    @Override
+    public Page<StudentListResponse> list(int page, int size) {
+
+        page = Math.max(page, 0);
+        size = Math.min(Math.max(size, 1), 100);
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Order.desc("registerNo"),
+                        Sort.Order.desc("studentId")) //for pagination
+        );
+
+        Page<Student> studentPage = studentRepository.findAll(pageable);
+
+        return studentPage.map(student ->
+                new StudentListResponse(
+                        student.getRegisterNo(),
+                        student.getName(),
+                        student.getEmail()
+                )
+        );
+    }
+
+
+    @Override
+    public Page<StudentListResponse> list(
+            int page,
+            int size,
+            String search,
+            String sort
+    ) {
+
+        page = Math.max(page, 0);
+        size = Math.min(Math.max(size, 1), 100);
+
+        Sort sorting;
+
+        if (sort != null && !sort.isBlank()) {
+            String[] parts = sort.split(",");
+            sorting = parts.length == 2 && parts[1].equalsIgnoreCase("desc")
+                    ? Sort.by(parts[0]).descending()
+                    : Sort.by(parts[0]).ascending();
+        } else {
+            sorting = Sort.by("registerNo").descending();
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sorting);
+
+        Page<Student> studentPage =
+                studentRepository.searchStudents(search, pageable);
+
+        return studentPage.map(student ->
+                new StudentListResponse(
+                        student.getRegisterNo(),
+                        student.getName(),
+                        student.getEmail()
+                )
+        );
+    }
 
     @Override
     public List<Student> addStudentBulk(List<StudentRequest> list) {
         List<Student> students = new ArrayList<>();
 
         for (StudentRequest st : list) {
-            Department d = departmentRepository.findById(st.getDepId())
+            Department d = departmentRepository.findDepartmentByName(st.getName())
                     .orElseThrow(() -> new RuntimeException("Department not found"));
 
 
@@ -161,5 +225,12 @@ public class StudentServiceImpl implements StudentService {
                 student.getYear(),
                 student.getSemester()
         );
+    }
+    @Override
+    public List<Long> getStudentYearWiseList(int year , Long  deptId) {
+        return studentRepository
+                .getRegisterNumbersByYear(year ,  deptId)
+                .stream()
+                .toList();
     }
 }

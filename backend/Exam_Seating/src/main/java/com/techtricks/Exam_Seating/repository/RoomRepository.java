@@ -1,11 +1,15 @@
 package com.techtricks.Exam_Seating.repository;
 
 import com.techtricks.Exam_Seating.model.Room;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room,Long> {
@@ -14,4 +18,18 @@ public interface RoomRepository extends JpaRepository<Room,Long> {
     List<Room> findAllByOrderByCapacityDesc();
 
     List<Room> findAllByOrderByTotalCapacityDesc();
+
+    Optional<Room> findByRoomNumber(Long roomNumber);
+
+    Optional<Room> findByName(String roomName);
+
+
+    @Query("""
+    SELECT r FROM Room r
+    WHERE (:search IS NULL OR :search = '' OR
+           LOWER(r.name) LIKE LOWER(CONCAT('%', :search, '%')) OR
+           STR(r.roomNumber) LIKE CONCAT('%', :search, '%') OR
+           STR(r.location) LIKE CONCAT('%', :search, '%'))
+""")
+    Page<Room> searchRoom(@Param("search") String search, Pageable pageable);
 }

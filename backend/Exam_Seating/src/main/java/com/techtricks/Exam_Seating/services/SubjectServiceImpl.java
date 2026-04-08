@@ -1,6 +1,7 @@
 package com.techtricks.Exam_Seating.services;
 
 import com.techtricks.Exam_Seating.dto.SubjectRequest;
+import com.techtricks.Exam_Seating.dto.SubjectResponseBack;
 import com.techtricks.Exam_Seating.model.Department;
 import com.techtricks.Exam_Seating.model.Student;
 import com.techtricks.Exam_Seating.model.Subject;
@@ -16,19 +17,16 @@ import java.util.List;
 public class SubjectServiceImpl implements SubjectService {
 
     private final SubjectRepository subjectRepository;
-    private final StudentRepository studentRepository;
-
     private final DepartmentRepository departmentRepository;
-    public SubjectServiceImpl(SubjectRepository subjectRepository, StudentRepository studentRepository, DepartmentRepository departmentRepository) {
+    public SubjectServiceImpl(SubjectRepository subjectRepository, DepartmentRepository departmentRepository) {
         this.subjectRepository = subjectRepository;
-        this.studentRepository = studentRepository;
         this.departmentRepository = departmentRepository;
 
     }
 
     @Override
     public Subject addSubject(String code, String title, Long deptId, int sem, int parts) {
-        Department d = departmentRepository.findById(deptId)
+        Department d = departmentRepository.findDepartmentByCode(code)
                 .orElseThrow(() -> new RuntimeException("Dept not found"));
 
         Subject s = Subject.builder()
@@ -66,7 +64,17 @@ public class SubjectServiceImpl implements SubjectService {
         return subjectRepository.saveAll(subjects);
     }
 
-
+    @Override
+    public List<SubjectResponseBack> getSubjectsByDept(Long deptId) {
+        return subjectRepository.getSubjectByDepartments(deptId).stream()
+                .map((s )->{SubjectResponseBack subjectResponse = new SubjectResponseBack();
+                subjectResponse.setSubjectCode(s.getSubjectCode());
+                subjectResponse.setTitle(s.getTitle());
+                subjectResponse.setYear(s.getYear());
+                subjectResponse.setSemester(s.getSemester());
+                return subjectResponse;
+                }).toList();
+    }
 
 
 }

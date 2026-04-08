@@ -1,5 +1,7 @@
 package com.techtricks.coe_auth.exceptions;
 
+import com.techtricks.Exam_Seating.exception.DepartmentAlreadyPresentException;
+import com.techtricks.Exam_Seating.exception.DepartmentNotFoundException;
 import com.techtricks.Exam_Seating.exception.RoomDeletionNotAllowedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -79,5 +82,33 @@ public class GlobalExceptionHandler {
         error.put("message", ex.getMessage());
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    @ExceptionHandler(DepartmentNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleDepartmentNotFoundException(
+            DepartmentNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+
+
+    @ExceptionHandler(DepartmentAlreadyPresentException.class)
+    public ResponseEntity<Map<String, Object>> handleDepartmentAlreadyPresentException(
+            DepartmentAlreadyPresentException ex) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+
+
+    //helper
+
+    private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", status.value());
+        body.put("error", status.getReasonPhrase());
+        body.put("message", message);
+        return new ResponseEntity<>(body, status);
     }
 }

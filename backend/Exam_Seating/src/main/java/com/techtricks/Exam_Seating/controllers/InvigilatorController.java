@@ -7,6 +7,7 @@ import com.techtricks.Exam_Seating.model.SeatAssignment;
 import com.techtricks.Exam_Seating.repository.InvigilatorRepository;
 import com.techtricks.Exam_Seating.repository.ScanLogRepository;
 import com.techtricks.Exam_Seating.repository.SeatAssignmentRepository;
+import com.techtricks.Exam_Seating.services.SeatAssignmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,18 +15,20 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/invigilator")
+@RequestMapping("/api/v1/invigilator")
 public class InvigilatorController {
 
     private final SeatAssignmentRepository seatAssignmentRepository;
     private final ScanLogRepository scanLogRepository;
     private final InvigilatorRepository invigilatorRepository;
+    private final SeatAssignmentService seatAssignmentService;
 
     public InvigilatorController(SeatAssignmentRepository seatAssignmentRepository,
-                                 ScanLogRepository scanLogRepository, InvigilatorRepository invigilatorRepository) {
+                                 ScanLogRepository scanLogRepository, InvigilatorRepository invigilatorRepository, SeatAssignmentService seatAssignmentService) {
         this.seatAssignmentRepository = seatAssignmentRepository;
         this.scanLogRepository = scanLogRepository;
         this.invigilatorRepository = invigilatorRepository;
+        this.seatAssignmentService = seatAssignmentService;
     }
 
     // FIXED: added @RequestParam Long invigilatorId
@@ -46,7 +49,7 @@ public class InvigilatorController {
         }
 
         SeatAssignment a = asg.get();
-        a.setStatus(AssignStatus.SEATED);
+//        a.setStatus(AssignStatus.SEATED);
         seatAssignmentRepository.save(a);
 
         // SAVE SCAN LOG (NOW CORRECT)
@@ -81,4 +84,15 @@ public class InvigilatorController {
         return ResponseEntity.ok(invigilatorRepository.findAll());
     }
 
+
+    @PostMapping("/attendance")
+    public ResponseEntity<String> markAttendance(
+            @RequestParam Long roomId,
+            @RequestParam Long studentId,
+            @RequestParam Long sessionId) {
+
+        String response = seatAssignmentService.markAttendance(roomId, studentId,  sessionId);
+
+        return ResponseEntity.ok(response);
+    }
 }

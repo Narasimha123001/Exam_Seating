@@ -38,6 +38,7 @@ public class SeatAssignment {
     private Student student;
 
     @Enumerated(EnumType.STRING)
+
     private AssignStatus status;
 
     private String assignedAt;

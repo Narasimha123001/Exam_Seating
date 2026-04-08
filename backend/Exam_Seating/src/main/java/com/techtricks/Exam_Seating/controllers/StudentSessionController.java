@@ -3,13 +3,8 @@ package com.techtricks.Exam_Seating.controllers;
 import com.techtricks.Exam_Seating.dto.StudentBulkRegisterRequest;
 import com.techtricks.Exam_Seating.dto.StudentRegisterRequest;
 import com.techtricks.Exam_Seating.dto.StudentRegisterResponse;
-import com.techtricks.Exam_Seating.model.Student;
-import com.techtricks.Exam_Seating.model.StudentSession;
-import com.techtricks.Exam_Seating.repository.StudentRepository;
-import com.techtricks.Exam_Seating.repository.StudentSessionRepository;
 import com.techtricks.Exam_Seating.services.StudentSessionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,6 +37,4 @@ public class StudentSessionController {
         StudentRegisterResponse response = studentSessionService.register(request);
         return ResponseEntity.ok(response);
     }
-
-
 }

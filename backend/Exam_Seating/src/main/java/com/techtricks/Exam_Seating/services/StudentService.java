@@ -2,6 +2,7 @@ package com.techtricks.Exam_Seating.services;
 
 import com.techtricks.Exam_Seating.dto.*;
 import com.techtricks.Exam_Seating.model.Student;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public interface StudentService {
 
    Student getStudent(Long registrationId);
 
+   Page<StudentListResponse> list(int page , int size);
     List<Student> addStudentBulk(List<StudentRequest> list);
 
     Student updateStudent(StudentRequest studentRequest);
@@ -22,4 +24,12 @@ public interface StudentService {
     StudentSeatDetails getStudentSeatDetails(Long registerNo);
 
     StudentProfileDto getStudentByEmail(String email);
+
+    List<Long> getStudentYearWiseList(int year ,  Long  deptId);
+    Page<StudentListResponse> list(
+            int page,
+            int size,
+            String search,
+            String sort
+    );
 }

@@ -9,6 +9,8 @@ import com.techtricks.Exam_Seating.repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
+//not used
 @Service
 @RequiredArgsConstructor
 public class SessionServiceImpl {

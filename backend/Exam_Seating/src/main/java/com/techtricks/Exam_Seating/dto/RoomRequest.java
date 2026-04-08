@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class RoomRequest {
+    private Long roomNumber;
     private String name;
     private int benchesTotal;
     private int seatsPerBench;

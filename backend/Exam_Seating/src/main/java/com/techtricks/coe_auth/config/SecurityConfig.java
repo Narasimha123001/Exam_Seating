@@ -45,11 +45,20 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/student/me").hasRole("STUDENT")
                                 .requestMatchers("/api/v1/appointments/my","/api/v1/appointments/book").hasRole("STUDENT")
                                 .requestMatchers("/api/v1/appointments").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/departments").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/examrooms/**").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/blackRoom/assign/**").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/exam/**").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/subjects/bulk").hasRole("ADMIN")
+                                .requestMatchers("/api/v1/admin/generate").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/users/staff/me").hasRole("STAFF")
                                 .requestMatchers("/api/v1/auth/register" ,
-                                        "/api/v1/auth/authenticate" ,
+                                        "/api/v1/auth/**" ,
                                         "/actuator/health",
-                                        "/room/access/**",
+                                        "/api/v1/seats/**",
+                                        "/api/v1/blackRoom/access/**",
+                   "/api/v1/student/**",
+                                        "/api/v1/invigilator/**",
                                         "/api/v1/student/add").permitAll()
                                 .anyRequest().authenticated());
 

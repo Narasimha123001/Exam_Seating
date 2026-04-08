@@ -6,7 +6,7 @@ import lombok.Data;
 public class ExamSessionCreateRequest {
 
     private Long examId;
-    private Long subjectId;
+    private String subjectCode;
     private String date;
     private String slotCode;
     private String startTime;
