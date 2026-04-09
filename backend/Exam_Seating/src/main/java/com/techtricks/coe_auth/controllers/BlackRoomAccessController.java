@@ -6,6 +6,8 @@ import com.techtricks.coe_auth.exceptions.NoAccessPresentException;
 import com.techtricks.coe_auth.exceptions.BlackRoomAccessAlreadyPresentException;
 import com.techtricks.coe_auth.exceptions.BlackRoomNotFoundExceptions;
 import com.techtricks.coe_auth.exceptions.UserNotFoundException;
+import com.techtricks.coe_auth.models.BlackRoomAccess;
+import com.techtricks.coe_auth.repositorys.BlackRoomAccessRepository;
 import com.techtricks.coe_auth.services.BlackRoomAccessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -22,6 +26,7 @@ import java.util.List;
 public class BlackRoomAccessController {
 
     private final BlackRoomAccessService blackRoomAccessService;
+    private final BlackRoomAccessRepository repo;
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/assign")
@@ -48,6 +53,7 @@ public class BlackRoomAccessController {
 
     @DeleteMapping("/remove/{registerNumber}/{blackRoomName}")
     public ResponseEntity<?> deleteBlackRoomAccess( @PathVariable Long registerNumber , @PathVariable String blackRoomName ) {
+        Long room = Long.parseLong(blackRoomName.replace(".", ""));
         try{
             blackRoomAccessService.removeBlackRoomAccess(registerNumber, blackRoomName);
             return ResponseEntity.ok("Access removed successfully");
@@ -55,21 +61,36 @@ public class BlackRoomAccessController {
             throw new RuntimeException(e);
         }
     }
+    @GetMapping("/access/{registerNumber}/checking/{roomNumber}")
+    public ResponseEntity<?> validateAccess(
+            @PathVariable Long registerNumber,
+            @PathVariable Long roomNumber) {
 
-
-    @GetMapping("/access/{registerNumber}/1417/{roomNumber}")
-    public ResponseEntity<?> validateAccess(@PathVariable Long registerNumber, @PathVariable Long roomNumber) throws BlackRoomNotFoundExceptions {
-        try{
+        try {
             boolean validate = blackRoomAccessService.validateAccess(registerNumber, roomNumber);
-            System.out.println(registerNumber +" "+ roomNumber + " "+ validate);
-            if(validate){
-                return ResponseEntity.ok("Access validated successfully");
-            }else{
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Access validation failed");
+
+            if (validate) {
+                return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Access validated successfully",
+                        "access", true,
+                        "roomNumber", roomNumber
+                ));
+
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                        "success", false,
+                        "message", "Access validation failed",
+                        "access", false
+                ));
             }
-        }catch (UserNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalAccessException e) {
+
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        } catch (BlackRoomNotFoundExceptions | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

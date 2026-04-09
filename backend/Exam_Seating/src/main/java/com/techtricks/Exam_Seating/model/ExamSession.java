@@ -1,6 +1,7 @@
 package com.techtricks.Exam_Seating.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.techtricks.coe_auth.models.Staff;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -43,4 +44,8 @@ public class ExamSession {
     @Column(name = "capacity_required", nullable = false)
     @JsonIgnore           // ignore from JSON in/out if you want; remove if you want it in responses
     private Integer capacityRequired = 0;
+
+    @ManyToOne
+    @JoinColumn(name = "staff_id" , nullable = true)
+    private Staff staff;
 }

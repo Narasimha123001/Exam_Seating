@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ public class BlackRoomAccessServiceImpl implements BlackRoomAccessService {
             UserNotFoundException, BlackRoomAccessAlreadyPresentException {
         User user = validateAndGetUser(dto.getRegisterNumber());
         BlackRoom blackRoom = validateAndGetRoom(dto.getBlackRoomId());
-        if(!hasExistingAccess(user.getId() , dto.getBlackRoomId())){
+        if(hasExistingAccess(user.getId() , dto.getBlackRoomId())){
             throw new BlackRoomAccessAlreadyPresentException("Room id "+dto.getBlackRoomId() +"Already assigned with "+user.getName());
         }
         BlackRoomAccess savedAccess = blackRoomAccessRepository.save(createRoomAccess(user , blackRoom));
@@ -86,7 +87,32 @@ public class BlackRoomAccessServiceImpl implements BlackRoomAccessService {
         return  blackRoomAccessRepository.existsByUserIdAndBlackRoomBlackRoomId(user.getId(), room.getBlackRoomId());
     }
 
-  //TODO -> these private are used for verification and validation purpose
+    @jakarta.transaction.Transactional
+    public boolean validateAndUpdateAccess(Long userId, Long roomId) {
+
+        // Step 1: Check if access exists
+        boolean exists = blackRoomAccessRepository.existsByUserIdAndBlackRoomBlackRoomId(userId, roomId);
+
+        if (!exists) {
+            return false;
+        }
+
+        // Step 2: Fetch the actual entity
+        BlackRoomAccess access = blackRoomAccessRepository
+                .findByUserIdAndBlackRoomBlackRoomId(userId, roomId)
+                .orElseThrow(() -> new RuntimeException("Access record not found"));
+
+        // Step 3: Update fields
+        access.setExits(access.getExits() + 1);
+        access.setTime(LocalDateTime.now());
+
+        // Step 4: Save (important)
+        blackRoomAccessRepository.save(access);
+
+        return true;
+    }
+
+        //TODO -> these private are used for verification and validation purpose
 
     private BlackRoomAccessResponseDto buildSuccessResponse(BlackRoomAccess savedAccess) {
 
